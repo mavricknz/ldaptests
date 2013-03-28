@@ -228,8 +228,8 @@ func TestLocalControlMatchedValuesRequest(t *testing.T) {
 		return
 	}
 	//l.Debug = false
-	fmt.Printf("Search Result:")
-	fmt.Println(sr.Entries[0].Attributes[0])
+	fmt.Println("Search Result:")
+	fmt.Print(sr)
 
 	control = ldap.NewControlMatchedValuesRequest(true, "(description=a*)")
 	fmt.Println(control.String())
@@ -248,8 +248,8 @@ func TestLocalControlMatchedValuesRequest(t *testing.T) {
 		return
 	}
 	//l.Debug = false
-	fmt.Printf("Search Result:")
-	fmt.Println(sr.Entries[0].Attributes[0])
+	fmt.Println("Search Result:")
+	fmt.Print(sr)
 
 	fmt.Printf("Deleting: %s\n", addDNs[0])
 	delRequest := ldap.NewDeleteRequest(addDNs[0])

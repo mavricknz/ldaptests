@@ -25,12 +25,12 @@ func TestLocalBind(t *testing.T) {
 	fmt.Printf("TestLocalBind: finished...\n")
 }
 
+// Really just a test of setting the timeout.
 func TestLocalBindWithTimeout(t *testing.T) {
 	fmt.Printf("TestLocalBindWithTimeout: starting...\n")
-	fmt.Printf("Expecting a %v error\n", ldap.ErrorNetwork)
 	l := ldap.NewLDAPConnection(server, port)
 	l.NetworkConnectTimeout = 5 * time.Second
-	l.ReadTimeout = 5 * time.Microsecond
+	l.ReadTimeout = 5 * time.Second
 	err := l.Connect()
 	if err != nil {
 		t.Errorf(err.Error() + "\n")
@@ -39,13 +39,7 @@ func TestLocalBindWithTimeout(t *testing.T) {
 	defer l.Close()
 	err = l.Bind(binddn, passwd)
 	if err != nil {
-		if err.ResultCode == ldap.ErrorNetwork {
-			fmt.Println(err.Error())
-		} else {
-			fmt.Println(err.Error())
-		}
-	} else {
-		t.Errorf("Should have timed out, it's possible not.\n")
+		t.Errorf("Timed out in with a bind timeout of 5 seconds!\n")
 		return
 	}
 	fmt.Printf("TestLocalBindWithTimeout: finished...\n")
