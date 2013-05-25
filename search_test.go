@@ -11,14 +11,14 @@ func TestLocalSearch(t *testing.T) {
 	l := ldap.NewLDAPConnection(server, port)
 	err := l.Connect()
 	if err != nil {
-		t.Errorf(err.Error() + "\n")
+		t.Error(err)
 		return
 	}
 	defer l.Close()
 
 	err = l.Bind(binddn, passwd)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 
@@ -31,7 +31,7 @@ func TestLocalSearch(t *testing.T) {
 
 	sr, err := l.Search(search_request)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	fmt.Printf("TestLocalSearch: %s -> num of entries = %d\n", search_request.Filter, len(sr.Entries))
@@ -42,14 +42,14 @@ func TestLocalSearchWithPaging(t *testing.T) {
 	l := ldap.NewLDAPConnection(server, port)
 	err := l.Connect()
 	if err != nil {
-		t.Errorf(err.Error() + "\n")
+		t.Error(err)
 		return
 	}
 	defer l.Close()
 
 	err = l.Bind(binddn, passwd)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 
@@ -62,7 +62,7 @@ func TestLocalSearchWithPaging(t *testing.T) {
 	sr, err := l.SearchWithPaging(search_request, 3)
 
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 
@@ -81,7 +81,7 @@ func testLocalMultiGoroutineSearch(
 	sr, err := l.Search(search_request)
 
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		results <- nil
 		return
 	}
@@ -94,14 +94,14 @@ func TestLocalMultiGoroutineSearch(t *testing.T) {
 	l := ldap.NewLDAPConnection(server, port)
 	err := l.Connect()
 	if err != nil {
-		t.Errorf(err.Error() + "\n")
+		t.Error(err)
 		return
 	}
 	defer l.Close()
 
 	err = l.Bind(binddn, passwd)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 
@@ -125,14 +125,14 @@ func TestLocalCompare(t *testing.T) {
 	l := ldap.NewLDAPConnection(server, port)
 	err := l.Connect()
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	defer l.Close()
 
 	err = l.Bind(binddn, passwd)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 
@@ -143,33 +143,41 @@ func TestLocalCompare(t *testing.T) {
 	fmt.Printf("Adding: %s\n", addDNs[0])
 	err = l.Add(addReq)
 	if err != nil {
-		t.Errorf("Add : %s : result = %d\n", addDNs[0], err.ResultCode)
+		t.Errorf("Add : %s : %s\n", addDNs[0], err)
 		return
 	}
 
 	fmt.Printf("Comparing: %s : sn=Boy which is True\n", addDNs[0])
 	compareReq := ldap.NewCompareRequest(addDNs[0], "sn", "Boy")
-	err = l.Compare(compareReq)
-	if err.ResultCode != ldap.LDAPResultCompareTrue {
-		t.Errorf("Compare True: %s : result = %d\n", addDNs[0], err.ResultCode)
+	result, cerr := l.Compare(compareReq)
+	if cerr != nil {
+		t.Error(err)
 		return
 	}
-	fmt.Printf("Compare Result : %d : %s\n", err.ResultCode, ldap.LDAPResultCodeMap[err.ResultCode])
+	if result != true {
+		t.Error("Compare Result should have been true")
+		return
+	}
+	fmt.Printf("Compare Result : %v\n", result)
 
 	fmt.Printf("Comparing: %s : sn=BoyIsThisWrong which is False\n", addDNs[0])
 	compareReq = ldap.NewCompareRequest(addDNs[0], "sn", "BoyIsThisWrong")
-	err = l.Compare(compareReq)
-	if err.ResultCode != ldap.LDAPResultCompareFalse {
-		t.Errorf("Compare False: %s : result = %d\n", addDNs[0], err.ResultCode)
+	result, cerr = l.Compare(compareReq)
+	if cerr != nil {
+		t.Error(cerr)
 		return
 	}
-	fmt.Printf("Compare Result : %d : %s\n", err.ResultCode, ldap.LDAPResultCodeMap[err.ResultCode])
+	if result == true {
+		t.Error("Compare Result should have been false")
+		return
+	}
+	fmt.Printf("Compare Result : %v\n", result)
 
 	fmt.Printf("Deleting: %s\n", addDNs[0])
 	delRequest := ldap.NewDeleteRequest(addDNs[0])
 	err = l.Delete(delRequest)
 	if err != nil {
-		t.Errorf("Delete : %s : result = %d\n", addDNs[0], err.ResultCode)
+		t.Errorf("Delete : %s : %s\n", addDNs[0], err)
 		return
 	}
 }
@@ -179,14 +187,14 @@ func TestLocalControlMatchedValuesRequest(t *testing.T) {
 	l := ldap.NewLDAPConnection(server, port)
 	err := l.Connect()
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	defer l.Close()
 
 	err = l.Bind(binddn, passwd)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 
@@ -197,7 +205,7 @@ func TestLocalControlMatchedValuesRequest(t *testing.T) {
 	fmt.Printf("Adding: %s\n", addDNs[0])
 	err = l.Add(addReq)
 	if err != nil {
-		t.Errorf("Add : %s : result = %d\n", addDNs[0], err.ResultCode)
+		t.Errorf("Add : %s : %s\n", addDNs[0], err)
 		return
 	}
 
@@ -207,7 +215,7 @@ func TestLocalControlMatchedValuesRequest(t *testing.T) {
 	modreq.AddMod(mod)
 	err = l.Modify(modreq)
 	if err != nil {
-		t.Errorf("Modify: %s : result = %d\n", addDNs[0], err.ResultCode)
+		t.Errorf("Modify: %s : %s\n", addDNs[0], err)
 		return
 	}
 
@@ -224,7 +232,7 @@ func TestLocalControlMatchedValuesRequest(t *testing.T) {
 	//l.Debug = true
 	sr, err := l.Search(search_request)
 	if err != nil {
-		t.Errorf("Search: %s : result = %d : %s\n", addDNs[0], err.ResultCode, err.Err)
+		t.Errorf("Search: %s : %s\n", addDNs[0], err)
 		return
 	}
 	//l.Debug = false
@@ -244,7 +252,7 @@ func TestLocalControlMatchedValuesRequest(t *testing.T) {
 	//l.Debug = true
 	sr, err = l.Search(search_request)
 	if err != nil {
-		t.Errorf("Search: %s : result = %d : %s\n", addDNs[0], err.ResultCode, err.Err)
+		t.Errorf("Search: %s : %s\n", addDNs[0], err)
 		return
 	}
 	//l.Debug = false
@@ -256,7 +264,7 @@ func TestLocalControlMatchedValuesRequest(t *testing.T) {
 	err = l.Delete(delRequest)
 
 	if err != nil {
-		t.Errorf("Delete : %s : result = %d\n", addDNs[0], err.ResultCode)
+		t.Errorf("Delete : %s : %s\n", addDNs[0], err)
 		return
 	}
 }
@@ -267,10 +275,10 @@ type counter struct {
 	AbandonAtEntryCount int
 }
 
-func (c *counter) ProcessDiscreteResult(sr *ldap.DiscreteSearchResult, connInfo *ldap.ConnectionInfo) (stopProcessing bool, err *ldap.Error) {
+func (c *counter) ProcessDiscreteResult(sr *ldap.DiscreteSearchResult, connInfo *ldap.ConnectionInfo) (stopProcessing bool, err error) {
 	switch sr.SearchResultType {
 	case ldap.SearchResultEntry:
-		fmt.Println("result entry")
+		fmt.Printf("result entry: %s\n", sr.Entry.DN)
 		c.EntryCount++
 		if c.AbandonAtEntryCount != 0 {
 			if c.EntryCount == c.AbandonAtEntryCount {
@@ -290,21 +298,21 @@ func (c *counter) ProcessDiscreteResult(sr *ldap.DiscreteSearchResult, connInfo 
 }
 
 func TestLocalSearchWithHandler(t *testing.T) {
-	fmt.Printf("TestLocalSearchWithCallback: starting...\n")
+	fmt.Printf("TestLocalSearchWithHandler: starting...\n")
 
 	l := ldap.NewLDAPConnection(server, port)
 	err := l.Connect()
 
 	// l.Debug = true
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	defer l.Close()
 
 	err = l.Bind(binddn, passwd)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	search_request := ldap.NewSimpleSearchRequest(
@@ -321,40 +329,40 @@ func TestLocalSearchWithHandler(t *testing.T) {
 	resultCounter := new(counter)
 	err = l.SearchWithHandler(search_request, resultCounter, nil)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
-	fmt.Printf("TestLocalSearchWithCallback: %s entries = %d, Referrals = %d\n",
+	fmt.Printf("TestLocalSearchWithHandler: %s entries = %d, Referrals = %d\n",
 		search_request.Filter, resultCounter.EntryCount, resultCounter.ReferenceCount)
 
 	// Non-Blocking
 	fmt.Println("Non-Blocking version...")
-	resultChan := make(chan *ldap.Error)
+	resultChan := make(chan error)
 	resultCounter = new(counter)
 	go l.SearchWithHandler(search_request, resultCounter, resultChan)
 	fmt.Println("do stuff ...")
 	err = <-resultChan
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
-	fmt.Printf("TestLocalSearchWithCallback - go routine: %s entries = %d, Referrals = %d\n",
+	fmt.Printf("TestLocalSearchWithHandler - go routine: %s entries = %d, Referrals = %d\n",
 		search_request.Filter, resultCounter.EntryCount, resultCounter.ReferenceCount)
 
 	// TODO blocking + abandon non-trival version.
 
 	// Non-Blocking + Abandoning
 	fmt.Println("Non-Blocking + Abandon version...")
-	resultChan = make(chan *ldap.Error)
+	resultChan = make(chan error)
 	resultCounter = new(counter)
 	resultCounter.AbandonAtEntryCount = 4
 	go l.SearchWithHandler(search_request, resultCounter, resultChan)
 	err = <-resultChan
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
-	fmt.Printf("TestLocalSearchWithCallback - go routine: %s entries = %d, Referrals = %d\n",
+	fmt.Printf("TestLocalSearchWithHandler - go routine: %s entries = %d, Referrals = %d\n",
 		search_request.Filter, resultCounter.EntryCount, resultCounter.ReferenceCount)
 }
 
@@ -366,14 +374,14 @@ func TestLocalSearchPagingWithHandler(t *testing.T) {
 
 	// l.Debug = true
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	defer l.Close()
 
 	err = l.Bind(binddn, passwd)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	search_request := ldap.NewSimpleSearchRequest(
@@ -391,7 +399,7 @@ func TestLocalSearchPagingWithHandler(t *testing.T) {
 		sr := new(ldap.SearchResult)
 		err = l.SearchWithHandler(search_request, sr, nil)
 		if err != nil {
-			t.Errorf(err.Error())
+			t.Error(err)
 			return
 		}
 		_, pagingResponsePacket := ldap.FindControl(sr.Controls, ldap.ControlTypePaging)
@@ -415,14 +423,14 @@ func TestLocalConnAndSearch(t *testing.T) {
 
 	// l.Debug = true
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	defer l.Close()
 
 	err = l.Bind(binddn, passwd)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	search_request := ldap.NewSimpleSearchRequest(
@@ -434,7 +442,7 @@ func TestLocalConnAndSearch(t *testing.T) {
 	// ber.Debug = true
 	sr, err := l.Search(search_request)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	fmt.Printf("TestLocalSearch: %s -> num of entries = %d\n", search_request.Filter, len(sr.Entries))
@@ -447,14 +455,14 @@ func TestLocalOrderedSearch(t *testing.T) {
 
 	// l.Debug = true
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	defer l.Close()
 
 	err = l.Bind(binddn, passwd)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	search_request := ldap.NewSimpleSearchRequest(
@@ -477,7 +485,7 @@ func TestLocalOrderedSearch(t *testing.T) {
 	l.Debug = false
 	sr, err := l.Search(search_request)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	_, sssResponse := ldap.FindControl(sr.Controls, ldap.ControlTypeServerSideSortResponse)
@@ -494,14 +502,14 @@ func TestLocalVlvSearch(t *testing.T) {
 
 	// l.Debug = true
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	defer l.Close()
 
 	err = l.Bind(binddn, passwd)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	search_request := ldap.NewSimpleSearchRequest(
@@ -538,7 +546,7 @@ func TestLocalVlvSearch(t *testing.T) {
 	l.Debug = false
 	sr, err := l.Search(search_request)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	_, vlvResp := ldap.FindControl(sr.Controls, ldap.ControlTypeVlvResponse)
@@ -570,7 +578,7 @@ func TestLocalVlvSearch(t *testing.T) {
 
 	sr, err = l.Search(search_request)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	_, vlvResp = ldap.FindControl(sr.Controls, ldap.ControlTypeVlvResponse)

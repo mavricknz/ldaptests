@@ -39,14 +39,14 @@ func TestLocalAddAndDelete(t *testing.T) {
 	l := ldap.NewLDAPConnection(server, port)
 	err := l.Connect()
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	defer l.Close()
 
 	err = l.Bind(binddn, passwd)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 
@@ -57,14 +57,14 @@ func TestLocalAddAndDelete(t *testing.T) {
 	fmt.Printf("Adding: %s\n", addDNs[0])
 	err = l.Add(addReq)
 	if err != nil {
-		t.Errorf("Add : %s : result = %d\n", addDNs[0], err.ResultCode)
+		t.Errorf("Add : %s : %s\n", addDNs[0], err)
 		return
 	}
 	fmt.Printf("Deleting: %s\n", addDNs[0])
 	delRequest := ldap.NewDeleteRequest(addDNs[0])
 	err = l.Delete(delRequest)
 	if err != nil {
-		t.Errorf("Delete : %s : result = %d\n", addDNs[0], err.ResultCode)
+		t.Errorf("Delete : %s : %s\n", addDNs[0], err)
 		return
 	}
 }
@@ -74,14 +74,14 @@ func TestLocalControlPermissiveModifyRequest(t *testing.T) {
 	l := ldap.NewLDAPConnection(server, port)
 	err := l.Connect()
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 	defer l.Close()
 
 	err = l.Bind(binddn, passwd)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 		return
 	}
 
@@ -92,7 +92,7 @@ func TestLocalControlPermissiveModifyRequest(t *testing.T) {
 	fmt.Printf("Adding: %s\n", addDNs[0])
 	err = l.Add(addReq)
 	if err != nil {
-		t.Errorf("Add : %s : result = %d\n", addDNs[0], err.ResultCode)
+		t.Errorf("Add : %s : %s\n", addDNs[0], err)
 		return
 	}
 
@@ -102,7 +102,7 @@ func TestLocalControlPermissiveModifyRequest(t *testing.T) {
 	fmt.Println(modreq)
 	err = l.Modify(modreq)
 	if err != nil {
-		t.Errorf("Modify : %s : result = %d\n", addDNs[0], err.ResultCode)
+		t.Errorf("Modify : %s : %s\n", addDNs[0], err)
 		return
 	}
 
@@ -115,7 +115,7 @@ func TestLocalControlPermissiveModifyRequest(t *testing.T) {
 	fmt.Println(modreq)
 	err = l.Modify(modreq)
 	if err != nil {
-		t.Errorf("Modify (Permissive): %s : result = %d\n", addDNs[0], err.ResultCode)
+		t.Errorf("Modify (Permissive): %s : %s\n", addDNs[0], err)
 		return
 	}
 
@@ -128,7 +128,7 @@ func TestLocalControlPermissiveModifyRequest(t *testing.T) {
 	fmt.Println(modreq)
 	err = l.Modify(modreq)
 	if err != nil {
-		t.Errorf("Modify (Permissive): %s : result = %d\n", addDNs[0], err.ResultCode)
+		t.Errorf("Modify (Permissive): %s : %s\n", addDNs[0], err)
 		return
 	}
 
@@ -137,7 +137,7 @@ func TestLocalControlPermissiveModifyRequest(t *testing.T) {
 	err = l.Delete(delRequest)
 
 	if err != nil {
-		t.Errorf("Delete : %s : result = %d\n", addDNs[0], err.ResultCode)
+		t.Errorf("Delete : %s : %s\n", addDNs[0], err)
 		return
 	}
 }

@@ -12,7 +12,7 @@ func TestLocalConnect(t *testing.T) {
 	l := ldap.NewLDAPConnection(server, port)
 	err := l.Connect()
 	if err != nil {
-		t.Errorf(err.Error() + "\n")
+		t.Error(err)
 		return
 	}
 	defer l.Close()
@@ -26,12 +26,9 @@ func TestLocalConnectTimeout(t *testing.T) {
 	l.NetworkConnectTimeout = 1 * time.Microsecond
 	err := l.Connect()
 	if err != nil {
-		if err.ResultCode == ldap.ErrorNetwork {
-			fmt.Println(err.Error())
-		} else {
-			t.Errorf(err.Error() + "\n")
-			return
-		}
+		fmt.Print(err) // not an error
+		return
 	}
-	fmt.Printf("TestLocalConnectTimeout: finished...\n")
+	defer l.Close()
+	fmt.Print("TestLocalConnectTimeout: finished...\n")
 }
