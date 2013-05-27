@@ -2,7 +2,7 @@ package ldaptests
 
 import (
 	"fmt"
-	"ldap"
+	"github.com/mavricknz/ldap"
 	"testing"
 )
 
